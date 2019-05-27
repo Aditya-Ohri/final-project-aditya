@@ -15,10 +15,10 @@ TEXT_HEIGHT = 50
 # Compute the Screen's dimensions and set the title
 SCREEN_WIDTH = WIDTH * COLUMN_COUNT
 SCREEN_HEIGHT = HEIGHT * ROW_COUNT + TEXT_HEIGHT
-SCREEN_TITLE = "Connect 4 Game"
+SCREEN_TITLE = "Connect 4 Two-player Game"
 
 # Generate 2-D grid filled with 0's to represent empty slots
-grid = [[0 for i in range(COLUMN_COUNT)] for i in range(ROW_COUNT)]
+grid = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
 
 # Set variables to initialize game
 turn = 1
@@ -59,7 +59,6 @@ def on_update(delta_time):
 
 
 def on_draw():
-
     global game_over
     global turn
 
@@ -83,13 +82,20 @@ def on_draw():
             arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, arcade.color.BLUE)
             arcade.draw_circle_filled(x, y, RADIUS, colour)
 
+    # Output the user prompt to move determined by the turn number
+    if not game_over and turn % 2 == 1:
+        arcade.draw_text("Player 1/Red, move!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
+                         TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
+    elif not game_over and turn % 2 == 0:
+        arcade.draw_text("Player 2/Yellow, move!", SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT -
+                         TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
     # Output the winner determined by the turn number
-    if game_over and turn % 2 == 0:
-        arcade.draw_text("Red Wins!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
+    elif game_over and turn % 2 == 0:
+        arcade.draw_text("Red wins!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
-    elif game_over and turn % 2 == 1:
-        arcade.draw_text("Yellow Wins!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
-                         TEXT_HEIGHT + 10, arcade.color.WHITE, 22, width=200, align="center")
+    else:
+        arcade.draw_text("Yellow wins!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
+                         TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
 
 
 def on_key_press(key, modifiers):
