@@ -13,4 +13,4 @@ The game doesn't keep track of a score as there is really no score to Connect 4.
 
 ## Screen Mock-Ups
 Game Blueprint: 
-![alt text](C:\Users\Aditya Ohri\Downloads\IMG_4264 "Connect 4 Screen Mock-Up")
+![alt text](Screen Mock-Up.png "Connect 4 Screen Mock-Up")
