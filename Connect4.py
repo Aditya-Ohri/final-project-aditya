@@ -1,4 +1,5 @@
 import arcade
+import pyglet
 
 # Set the number of columns and rows for the board
 ROW_COUNT = 6
@@ -24,7 +25,7 @@ grid = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
 turn = 1
 game_over = False
 
-def winning_move(piece):
+def winning_move(piece: int):
     # Check horizontal for four in a row
     for r in range(ROW_COUNT):
         for c in range(COLUMN_COUNT - 3):
@@ -54,8 +55,13 @@ def winning_move(piece):
                 return True
 
 
+def play_sound(file_name: str):
+    player = pyglet.media.load(file_name)
+    player.play()
+
+
 def on_update(delta_time):
-    pass
+    play_sound("")
 
 
 def on_draw():
@@ -98,14 +104,6 @@ def on_draw():
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
 
 
-def on_key_press(key, modifiers):
-    pass
-
-
-def on_key_release(key, modifiers):
-    pass
-
-
 def on_mouse_press(x, y, button, modifiers):
     global turn
     global game_over
@@ -143,6 +141,7 @@ def setup():
     window = arcade.get_window()
     window.on_draw = on_draw
     window.on_mouse_press = on_mouse_press
+    window.on_update = on_update
 
     arcade.run()
 
