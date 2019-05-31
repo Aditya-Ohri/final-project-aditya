@@ -61,12 +61,8 @@ def play_sound(file_path: str):
 
 
 def on_update(delta_time):
-    if not game_over:
-        play_sound("/home/robuntu/Downloads/game_connect_4_playing_disc_place_in_frame_1.wav")
-    '''
-    else:
-      play_sound("/home/robuntu/Downloads/zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
-    '''
+    pass
+
 
 def on_draw():
     arcade.start_render()
@@ -89,19 +85,16 @@ def on_draw():
             arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, arcade.color.BLUE)
             arcade.draw_circle_filled(x, y, RADIUS, colour)
 
-    # Output the user prompt to move determined by the turn number
+    # Output the prompt for the user to move
     if not game_over and turn % 2 == 1:
         arcade.draw_text("Player 1/Red, move!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
-    elif not game_over and turn % 2 == 0:
-        arcade.draw_text("Player 2/Yellow, move!", SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT -
-                         TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
     # Output the winner determined by the turn number
     elif game_over and turn % 2 == 0:
-        arcade.draw_text("Red wins!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
+        arcade.draw_text("You won!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
-    else:
-        arcade.draw_text("Yellow wins!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
+    elif game_over and turn % 2 == 1:
+        arcade.draw_text("You lost.", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
 
 
