@@ -109,8 +109,8 @@ def on_mouse_press(x, y, button, modifiers):
     column = x // WIDTH
     row = y // HEIGHT
 
-    # Ensure the user clicks within the grid and there's no winner yet
-    if row < ROW_COUNT and column < COLUMN_COUNT and not game_over:
+    # Ensure the user clicks within the grid on an empty slot and there's no winner yet
+    if row < ROW_COUNT and column < COLUMN_COUNT and not game_over and grid[row][column] == 0:
         # Drop piece in lowest available row in a given column
         for r in range(row + 1):
             # Flip the grid location from 0 to 1 or 2 depending on which player's turn
