@@ -60,6 +60,10 @@ def play_sound(file_path: str):
     arcade.play_sound(sound_effect)
 
 
+def ai_player():
+    pass
+
+
 def on_update(delta_time):
     pass
 

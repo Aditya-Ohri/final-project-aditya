@@ -121,6 +121,7 @@ def on_mouse_press(x, y, button, modifiers):
                 grid[r][column] = 2
                 break
 
+        # Play sound of piece dropping in slot
         play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
 
         # Increment the turn number by 1 after every click/move
