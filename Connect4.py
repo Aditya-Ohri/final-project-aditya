@@ -61,12 +61,8 @@ def play_sound(file_path: str):
 
 
 def on_update(delta_time):
-    if not game_over:
-        play_sound("/home/robuntu/Downloads/game_connect_4_playing_disc_place_in_frame_1.wav")
-    '''
-    else:
-      play_sound("/home/robuntu/Downloads/zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
-    '''
+    pass
+
 
 def on_draw():
     arcade.start_render()
@@ -125,6 +121,8 @@ def on_mouse_press(x, y, button, modifiers):
                 grid[r][column] = 2
                 break
 
+        play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
+
         # Increment the turn number by 1 after every click/move
         turn += 1
 
@@ -132,7 +130,10 @@ def on_mouse_press(x, y, button, modifiers):
         if winning_move(grid[r][column]):
             game_over = True
 
-
+    '''
+    if game_over:
+        play_sound("zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
+    '''
 def setup():
     arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     arcade.set_background_color(arcade.color.BLACK)
