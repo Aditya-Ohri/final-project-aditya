@@ -1,4 +1,5 @@
 import arcade
+import random
 
 # Set the number of columns and rows for the board
 ROW_COUNT = 6
@@ -23,6 +24,9 @@ grid = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
 # Set variables to initialize game
 turn = 1
 game_over = False
+
+player = 1
+AI = 2
 
 
 def winning_move(piece: int):
@@ -60,8 +64,18 @@ def play_sound(file_path: str):
     arcade.play_sound(sound_effect)
 
 
-def ai_player():
-    pass
+def computer_move():
+    global grid
+    global turn
+
+    # col = random.randint(0, COLUMN_COUNT - 1)
+    col = 0
+    for row in range(ROW_COUNT):
+        if grid[row][col] == 0 and turn % 2 == 0:
+            grid[row][col] = AI
+            break
+    # play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
+    turn += 1
 
 
 def on_update(delta_time):
@@ -76,7 +90,7 @@ def on_draw():
             # Determine the colour of the circular slot
             if grid[row][column] == 0:
                 colour = arcade.color.BLACK
-            elif grid[row][column] == 1:
+            elif grid[row][column] == player:
                 colour = arcade.color.RED
             else:
                 colour = arcade.color.YELLOW
@@ -89,15 +103,18 @@ def on_draw():
             arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, arcade.color.BLUE)
             arcade.draw_circle_filled(x, y, RADIUS, colour)
 
-    # Output the prompt for the user to move
+    # Output the user prompt to move determined by the turn number
     if not game_over and turn % 2 == 1:
         arcade.draw_text("Player 1/Red, move!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
+    elif not game_over and turn % 2 == 0:
+        arcade.draw_text("Computer's move.", SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT -
+                         TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
     # Output the winner determined by the turn number
     elif game_over and turn % 2 == 0:
-        arcade.draw_text("You won!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
+        arcade.draw_text("You win!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
-    elif game_over and turn % 2 == 1:
+    else:
         arcade.draw_text("You lost.", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
 
@@ -110,26 +127,34 @@ def on_mouse_press(x, y, button, modifiers):
     column = x // WIDTH
     row = y // HEIGHT
 
-    # Ensure the user clicks within the grid and there's no winner yet
-    if row < ROW_COUNT and column < COLUMN_COUNT and not game_over:
+    # Ensure the user clicks within the grid on an empty slot and there's no winner yet
+    if row < ROW_COUNT and column < COLUMN_COUNT and not game_over and grid[row][column] == 0:
         # Drop piece in lowest available row in a given column
         for r in range(row + 1):
             # Flip the grid location from 0 to 1 or 2 depending on which player's turn
             if grid[r][column] == 0 and turn % 2 == 1:
-                grid[r][column] = 1
+                grid[r][column] = player
                 break
-            elif grid[r][column] == 0 and turn % 2 == 0:
-                grid[r][column] = 2
-                break
+
+        # Play sound of piece dropping in slot
+        play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
 
         # Increment the turn number by 1 after every click/move
         turn += 1
 
-        # If a winner is detected set game_over to True to disable any more clicks/moves
-        if winning_move(grid[r][column]):
+        if winning_move(player):
             game_over = True
+    if not game_over:
+        computer_move()
 
+    # If a winner is detected set game_over to True to disable any more clicks/moves
+    if winning_move(AI):
+        game_over = True
 
+    '''
+    if game_over:
+        play_sound("zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
+    '''
 def setup():
     arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     arcade.set_background_color(arcade.color.BLACK)
