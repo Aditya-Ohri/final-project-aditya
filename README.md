@@ -1,7 +1,7 @@
 # Aditya's CPT: Connnect 4
 
 ## Objective
-The main goal of this game is to give a variety of audiences (a single player or 2 players) a simple, efficient/fast, and engaing
+The main goal of this game is to give a variety of audiences/2 friends a simple, efficient/fast, and engaing
 experience while playing the classic Connect  4.
 
 ## Instructions
