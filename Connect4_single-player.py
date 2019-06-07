@@ -1,3 +1,5 @@
+# Note: AI was extremely hard (no algorithm) and time consuming to implement so I unfortunately couldn't even though I tried.
+
 import arcade
 import random
 
@@ -16,7 +18,7 @@ TEXT_HEIGHT = 50
 # Compute the Screen's dimensions and set the title
 SCREEN_WIDTH = WIDTH * COLUMN_COUNT
 SCREEN_HEIGHT = HEIGHT * ROW_COUNT + TEXT_HEIGHT
-SCREEN_TITLE = "Connect 4 Two-player Game"
+SCREEN_TITLE = "Connect 4 Single-player Game"
 
 # Generate 2-D grid filled with 0's to represent empty slots
 grid = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
@@ -64,23 +66,21 @@ def play_sound(file_path: str):
     arcade.play_sound(sound_effect)
 
 
-def computer_move():
+
+def computer_move(col):
     global grid
     global turn
 
-    # col = random.randint(0, COLUMN_COUNT - 1)
-    col = 0
     for row in range(ROW_COUNT):
         if grid[row][col] == 0 and turn % 2 == 0:
             grid[row][col] = AI
             break
-    # play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
+    play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
     turn += 1
 
 
 def on_update(delta_time):
     pass
-
 
 def on_draw():
     arcade.start_render()
@@ -144,18 +144,22 @@ def on_mouse_press(x, y, button, modifiers):
 
         if winning_move(player):
             game_over = True
-    if not game_over:
-        computer_move()
 
-    # If a winner is detected set game_over to True to disable any more clicks/moves
-    if winning_move(AI):
-        game_over = True
+        if not game_over:
+            col = random.randint(0, COLUMN_COUNT - 1)
+            computer_move(col)
 
-    '''
+        # If a winner is detected set game_over to True to disable any more clicks/moves
+        if winning_move(AI):
+            game_over = True
+
+    '''if not game_over:
     if game_over:
         play_sound("zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
     '''
 def setup():
+    global game_over
+
     arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     arcade.set_background_color(arcade.color.BLACK)
     arcade.schedule(on_update, 1/60)
