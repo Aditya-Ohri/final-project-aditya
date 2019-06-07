@@ -1,3 +1,5 @@
+# Note: AI was extremely hard (no algorithm) and time consuming to implement so I unfortunately couldn't even though I tried. 
+
 import arcade
 import random
 
