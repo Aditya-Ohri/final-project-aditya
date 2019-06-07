@@ -20,8 +20,11 @@ SCREEN_TITLE = "Connect 4 Two-player Game"
 
 # Assign the states/modes the game can be in
 MENU = 0
-TWO_PLAYER = 1
-ONE_PLAYER = 2
+ONE_PLAYER = 1
+TWO_PLAYER = 2
+
+player = 1
+AI = 2
 
 # Generate 2-D grid filled with 0's to represent empty slots
 grid = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
@@ -30,6 +33,13 @@ grid = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
 turn = 1
 game_over = False
 current_state = MENU
+
+texture = arcade.load_texture("logo.jpeg")
+scale = 0.120
+y_start = SCREEN_HEIGHT
+centre_x = SCREEN_WIDTH // 2
+texture_width = texture.width * scale
+texture_height = texture.height * scale
 
 
 def winning_move(piece: int):
@@ -62,20 +72,33 @@ def winning_move(piece: int):
                 return True
 
 
+def computer_move(col):
+    global grid
+    global turn
+
+    for row in range(ROW_COUNT):
+        if grid[row][col] == 0 and turn % 2 == 0:
+            grid[row][col] = AI
+            break
+    play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
+    turn += 1
+
+
 def play_sound(file_path: str):
     sound_effect = arcade.load_sound(file_path)
     arcade.play_sound(sound_effect)
 
 
 def on_update(delta_time):
-    pass
+    global y_start
+    y_start -= 1
+    if y_start + 25 <= 0:
+        y_start = SCREEN_HEIGHT
 
 
 def on_draw():
     arcade.start_render()
     if current_state == MENU:
-        texture = arcade.load_texture("logo.jpeg")
-        scale = 0.120
         arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 75, texture.width*scale, texture.height
                                       *scale, texture, 0)
         arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, 135, texture.width*scale, 50, arcade.color.BLUE)
@@ -84,8 +107,8 @@ def on_draw():
         arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, 50, texture.width*scale, 50, arcade.color.BLUE)
         arcade.draw_text("Two Player", SCREEN_WIDTH // 2 - texture.width * scale // 2, 40, arcade.color.WHITE, 18,
                          width=texture.width * scale, align="center")
-        arcade.draw_circle_filled(30, SCREEN_HEIGHT - 30, 25, arcade.color.RED)
-        arcade.draw_circle_filled(SCREEN_WIDTH - 30, SCREEN_HEIGHT - 30, 25, arcade.color.YELLOW)
+        arcade.draw_circle_filled(30, y_start, 25, arcade.color.RED)
+        arcade.draw_circle_filled(SCREEN_WIDTH - 30, y_start, 25, arcade.color.YELLOW)
     else:
         # Draw the game board
         for row in range(ROW_COUNT):
@@ -106,56 +129,103 @@ def on_draw():
                 arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, arcade.color.BLUE)
                 arcade.draw_circle_filled(x, y, RADIUS, colour)
 
-        # Output the user prompt to move determined by the turn number
-        if not game_over and turn % 2 == 1:
-            arcade.draw_text("Player 1/Red, move!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
-                         TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
-        elif not game_over and turn % 2 == 0:
-            arcade.draw_text("Player 2/Yellow, move!", SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT -
-                         TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
-        # Output the winner determined by the turn number
-        elif game_over and turn % 2 == 0:
-            arcade.draw_text("Red wins!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
-                         TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
+        if current_state == TWO_PLAYER:
+            # Output the user prompt to move determined by the turn number
+            if not game_over and turn % 2 == 1:
+                arcade.draw_text("Player 1/Red, move!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
+                            TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
+            elif not game_over and turn % 2 == 0:
+                arcade.draw_text("Player 2/Yellow, move!", SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT -
+                            TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
+            # Output the winner determined by the turn number
+            elif game_over and turn % 2 == 0:
+                arcade.draw_text("Red wins!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
+                             TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
+            else:
+                arcade.draw_text("Yellow wins!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
+                             TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
         else:
-            arcade.draw_text("Yellow wins!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
-                         TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
+            if not game_over and turn % 2 == 1:
+                arcade.draw_text("Player 1/Red, move!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
+                                 TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
+            elif not game_over and turn % 2 == 0:
+                arcade.draw_text("Computer's move.", SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT -
+                                 TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
+            # Output the winner determined by the turn number
+            elif game_over and turn % 2 == 0:
+                arcade.draw_text("You win!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
+                                 TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
+            else:
+                arcade.draw_text("You lost.", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
+                                 TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
 
 
 def on_mouse_press(x, y, button, modifiers):
     global turn
     global game_over
+    global current_state
 
-    # Convert the x, y screen coordinates to grid coordinates
-    column = x // WIDTH
-    row = y // HEIGHT
+    if current_state == MENU:
+        if (x > (centre_x - (texture_width // 2)) and x < (centre_x + (texture_width // 2))
+            and y > (135 - (50//2)) and y < (135 + (50//2))):
+            current_state = ONE_PLAYER
+        elif (x > (centre_x - (texture_width // 2)) and x < (centre_x + (texture_width // 2))
+            and y > (50 - (50//2)) and y < (50 + (50//2))):
+            current_state = TWO_PLAYER
 
-    # Ensure the user clicks within the grid on an empty slot and there's no winner yet
-    if row < ROW_COUNT and column < COLUMN_COUNT and not game_over and grid[row][column] == 0:
-        # Drop piece in lowest available row in a given column
-        for r in range(row + 1):
-            # Flip the grid location from 0 to 1 or 2 depending on which player's turn
-            if grid[r][column] == 0 and turn % 2 == 1:
-                grid[r][column] = 1
-                break
-            elif grid[r][column] == 0 and turn % 2 == 0:
-                grid[r][column] = 2
-                break
+    else:
+        # Convert the x, y screen coordinates to grid coordinates
+        column = x // WIDTH
+        row = y // HEIGHT
 
-        # Play sound of piece dropping in slot
-        play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
+        # Ensure the user clicks within the grid on an empty slot and there's no winner yet
+        if row < ROW_COUNT and column < COLUMN_COUNT and not game_over and grid[row][column] == 0:
+            if current_state == TWO_PLAYER:
+                # Drop piece in lowest available row in a given column
+                for r in range(row + 1):
+                    # Flip the grid location from 0 to 1 or 2 depending on which player's turn
+                    if grid[r][column] == 0 and turn % 2 == 1:
+                        grid[r][column] = 1
+                        break
+                    elif grid[r][column] == 0 and turn % 2 == 0:
+                        grid[r][column] = 2
+                        break
 
-        # Increment the turn number by 1 after every click/move
-        turn += 1
+                # Play sound of piece dropping in slot
+                play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
 
-        # If a winner is detected set game_over to True to disable any more clicks/moves
-        if winning_move(grid[r][column]):
-            game_over = True
+                # Increment the turn number by 1 after every click/move
+                turn += 1
 
-    '''
-    if game_over:
-        play_sound("zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
-    '''
+                # If a winner is detected set game_over to True to disable any more clicks/moves
+                if winning_move(grid[r][column]):
+                    game_over = True
+            else:
+                # Drop piece in lowest available row in a given column
+                for r in range(row + 1):
+                    # Flip the grid location from 0 to 1 or 2 depending on which player's turn
+                    if grid[r][column] == 0 and turn % 2 == 1:
+                        grid[r][column] = player
+                        break
+
+                # Play sound of piece dropping in slot
+                play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
+
+                # Increment the turn number by 1 after every click/move
+                turn += 1
+
+                if winning_move(player):
+                    game_over = True
+
+                if not game_over:
+                    col = random.randint(0, COLUMN_COUNT - 1)
+                    computer_move(col)
+
+                # If a winner is detected set game_over to True to disable any more clicks/moves
+                if winning_move(AI):
+                    game_over = True
+
+
 def setup():
     arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     arcade.set_background_color(arcade.color.BLACK)
