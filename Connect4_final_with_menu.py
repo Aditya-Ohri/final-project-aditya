@@ -16,13 +16,24 @@ TEXT_HEIGHT = 50
 # Compute the Screen's dimensions and set the title
 SCREEN_WIDTH = WIDTH * COLUMN_COUNT
 SCREEN_HEIGHT = HEIGHT * ROW_COUNT + TEXT_HEIGHT
-SCREEN_TITLE = "Connect 4 Two-player Game"
+SCREEN_TITLE = "Connect 4 Game"
+
+# Set dimensions for uploaded texure/logo
+texture = arcade.load_texture("logo.jpeg")
+scale = 0.120
+texture_width = texture.width * scale
+texture_height = texture.height * scale
+
+# Set starting y point for animated pieces in menu and centre point for text and other features
+y_start = SCREEN_HEIGHT
+centre_x = SCREEN_WIDTH // 2
 
 # Assign the states/modes the game can be in
 MENU = 0
 ONE_PLAYER = 1
 TWO_PLAYER = 2
 
+# Assign player and AI to different values for single player mode
 player = 1
 AI = 2
 
@@ -33,13 +44,6 @@ grid = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
 turn = 1
 game_over = False
 current_state = MENU
-
-texture = arcade.load_texture("logo.jpeg")
-scale = 0.120
-y_start = SCREEN_HEIGHT
-centre_x = SCREEN_WIDTH // 2
-texture_width = texture.width * scale
-texture_height = texture.height * scale
 
 
 def winning_move(piece: int):
@@ -73,97 +77,106 @@ def winning_move(piece: int):
 
 
 def computer_move(col):
-    global grid
-    global turn
+    global grid, turn
 
+    # Drop computer/AI piece given a random column
     for row in range(ROW_COUNT):
         if grid[row][col] == 0 and turn % 2 == 0:
             grid[row][col] = AI
             break
+
     play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
     turn += 1
 
 
+def draw_menu():
+    # Draw texture/Connect 4 logo
+    arcade.draw_texture_rectangle(centre_x, SCREEN_HEIGHT - 75, texture_width, texture_height, texture, 0)
+
+    # Draw buttons for single and two player modes
+    arcade.draw_rectangle_filled(centre_x, 135, texture_width, 50, arcade.color.BLUE)
+    arcade.draw_text("Single Player", centre_x - texture_width // 2, 125, arcade.color.WHITE, 18,
+                     width=texture_width, align="center")
+    arcade.draw_rectangle_filled(centre_x, 50, texture_width, 50, arcade.color.BLUE)
+    arcade.draw_text("Two Player", centre_x - texture_width // 2, 40, arcade.color.WHITE, 18,
+                     width=texture_width, align="center")
+
+    # Draw animated pieces
+    arcade.draw_circle_filled(30, y_start, 25, arcade.color.RED)
+    arcade.draw_circle_filled(SCREEN_WIDTH - 30, y_start, 25, arcade.color.YELLOW)
+
+
+def draw_board():
+    for row in range(ROW_COUNT):
+        for column in range(COLUMN_COUNT):
+            # Determine the colour of the circular slot
+            if grid[row][column] == 0:
+                colour = arcade.color.BLACK
+            elif grid[row][column] == 1:
+                colour = arcade.color.RED
+            else:
+                colour = arcade.color.YELLOW
+
+            # Compute the centre coordinates for each grid location
+            x = WIDTH * column + WIDTH // 2
+            y = HEIGHT * row + HEIGHT // 2
+
+            # Draw each grid location as a slot on the Connect 4 board
+            arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, arcade.color.BLUE)
+            arcade.draw_circle_filled(x, y, RADIUS, colour)
+
+
+def draw_text(turn_prompt_1, turn_prompt_2, winner_message_1, winner_message_2):
+    # Output the user prompt to move determined by the turn number
+    if not game_over and turn % 2 == 1:
+        arcade.draw_text(turn_prompt_1, centre_x - 150, SCREEN_HEIGHT -
+                         TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
+    elif not game_over and turn % 2 == 0:
+        arcade.draw_text(turn_prompt_2, centre_x - 200, SCREEN_HEIGHT -
+                         TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
+    # Output the winner determined by the turn number
+    elif game_over and turn % 2 == 0:
+        arcade.draw_text(winner_message_1, centre_x - 100, SCREEN_HEIGHT -
+                         TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
+    else:
+        arcade.draw_text(winner_message_2, centre_x - 150, SCREEN_HEIGHT -
+                         TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
+
+
 def play_sound(file_path: str):
+    # Load and play sound effect
     sound_effect = arcade.load_sound(file_path)
     arcade.play_sound(sound_effect)
 
 
 def on_update(delta_time):
     global y_start
+    # Animate pieces on menu screen
     y_start -= 1
-    if y_start + 25 <= 0:
+    # Once the pieces cross the bottom of the screen, bring them back up to the top, forming a cycle
+    if (y_start + 25) <= 0:
         y_start = SCREEN_HEIGHT
 
 
 def on_draw():
+    # Draw everything in all 3 states of the game
     arcade.start_render()
+
     if current_state == MENU:
-        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 75, texture.width*scale, texture.height
-                                      *scale, texture, 0)
-        arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, 135, texture.width*scale, 50, arcade.color.BLUE)
-        arcade.draw_text("Single Player", SCREEN_WIDTH // 2 - texture.width*scale // 2, 125, arcade.color.WHITE, 18,
-                         width=texture.width*scale, align="center")
-        arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, 50, texture.width*scale, 50, arcade.color.BLUE)
-        arcade.draw_text("Two Player", SCREEN_WIDTH // 2 - texture.width * scale // 2, 40, arcade.color.WHITE, 18,
-                         width=texture.width * scale, align="center")
-        arcade.draw_circle_filled(30, y_start, 25, arcade.color.RED)
-        arcade.draw_circle_filled(SCREEN_WIDTH - 30, y_start, 25, arcade.color.YELLOW)
+        # Draw menu
+        draw_menu()
     else:
-        # Draw the game board
-        for row in range(ROW_COUNT):
-            for column in range(COLUMN_COUNT):
-                # Determine the colour of the circular slot
-                if grid[row][column] == 0:
-                    colour = arcade.color.BLACK
-                elif grid[row][column] == 1:
-                    colour = arcade.color.RED
-                else:
-                    colour = arcade.color.YELLOW
-
-                # Compute the centre coordinates for each grid location
-                x = WIDTH * column + WIDTH // 2
-                y = HEIGHT * row + HEIGHT // 2
-
-                # Draw each grid location as a slot on the Connect 4 board
-                arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, arcade.color.BLUE)
-                arcade.draw_circle_filled(x, y, RADIUS, colour)
-
+        # Draw game board
+        draw_board()
+        # Output user prompts/messages based on the game mode
         if current_state == TWO_PLAYER:
-            # Output the user prompt to move determined by the turn number
-            if not game_over and turn % 2 == 1:
-                arcade.draw_text("Player 1/Red, move!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
-                            TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
-            elif not game_over and turn % 2 == 0:
-                arcade.draw_text("Player 2/Yellow, move!", SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT -
-                            TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
-            # Output the winner determined by the turn number
-            elif game_over and turn % 2 == 0:
-                arcade.draw_text("Red wins!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
-                             TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
-            else:
-                arcade.draw_text("Yellow wins!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
-                             TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
+            draw_text("Player 1/Red, move!", "Player 2/Yellow, move!", "Red wins!", "Yellow wins!")
         else:
-            if not game_over and turn % 2 == 1:
-                arcade.draw_text("Player 1/Red, move!", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
-                                 TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=300, align="center")
-            elif not game_over and turn % 2 == 0:
-                arcade.draw_text("Computer's move.", SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT -
-                                 TEXT_HEIGHT + 10, arcade.color.WHITE, 18, width=400, align="center")
-            # Output the winner determined by the turn number
-            elif game_over and turn % 2 == 0:
-                arcade.draw_text("You win!", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT -
-                                 TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=200, align="center")
-            else:
-                arcade.draw_text("You lost.", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT -
-                                 TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
+            draw_text("Player 1/Red, move!", "Computer's move.", "You win!", "You lost.")
 
 
 def on_mouse_press(x, y, button, modifiers):
-    global turn
-    global game_over
-    global current_state
+    global turn, game_over, current_state
 
     if current_state == MENU:
         if (x > (centre_x - (texture_width // 2)) and x < (centre_x + (texture_width // 2))
@@ -193,7 +206,6 @@ def on_mouse_press(x, y, button, modifiers):
 
                 # Play sound of piece dropping in slot
                 play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
-
                 # Increment the turn number by 1 after every click/move
                 turn += 1
 
