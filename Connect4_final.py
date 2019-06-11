@@ -165,9 +165,7 @@ def play_sound(file_path: str):
         sound_effect = arcade.load_sound(file_path)
         arcade.play_sound(sound_effect)
     except:
-        sound_effect = arcade.load_sound(file_path)
-        arcade.play_sound(sound_effect)
-
+        print("Unable to play sound.")
 
 def on_update(delta_time):
     global y_start
@@ -235,8 +233,6 @@ def on_mouse_press(x, y, button, modifiers):
                 # If a winner is detected set game_over to True to disable any more clicks/moves
                 if winning_move(grid[r][column]):
                     game_over = True
-
-                if game_over:
                     play_sound("zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
 
             # Single player mode
@@ -257,6 +253,7 @@ def on_mouse_press(x, y, button, modifiers):
                 # Check if human player has won
                 if winning_move(player):
                     game_over = True
+                    play_sound("zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
 
                 # If not make a computer move after selecting a random column
                 if not game_over:
