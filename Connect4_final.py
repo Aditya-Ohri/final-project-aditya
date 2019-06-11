@@ -1,3 +1,16 @@
+"""
+------------------------------------------------------------------------------------------------------------------------
+Name:		Connect4_final.py
+Purpose:
+Develop a program that first outputs a menu to give the user a choice to play a single or two player connect 4 game and
+then creates the chosen game until finally detecting and announcing a winner.
+
+Author:		Ohri. A
+
+Created:    11/06/2019
+------------------------------------------------------------------------------------------------------------------------
+"""
+
 import arcade
 import random
 
@@ -79,13 +92,16 @@ def winning_move(piece: int):
 def computer_move(col):
     global grid, turn
 
-    # Drop computer/AI piece given a random column
+    # Drop computer/AI piece to lowest available slot given a random column
     for row in range(ROW_COUNT):
         if grid[row][col] == 0 and turn % 2 == 0:
             grid[row][col] = AI
             break
 
+    # Play disc dropping in frame sound
     play_sound("game_connect_4_playing_disc_place_in_frame_1.wav")
+
+    # Increment turn by 1or 2 depending on which player's turn
     turn += 1
 
 
@@ -145,8 +161,12 @@ def draw_text(turn_prompt_1, turn_prompt_2, winner_message_1, winner_message_2):
 
 def play_sound(file_path: str):
     # Load and play sound effect
-    sound_effect = arcade.load_sound(file_path)
-    arcade.play_sound(sound_effect)
+    try:
+        sound_effect = arcade.load_sound(file_path)
+        arcade.play_sound(sound_effect)
+    except:
+        sound_effect = arcade.load_sound(file_path)
+        arcade.play_sound(sound_effect)
 
 
 def on_update(delta_time):
@@ -178,6 +198,7 @@ def on_draw():
 def on_mouse_press(x, y, button, modifiers):
     global turn, game_over, current_state
 
+    # Determine which button is pressed in the menu to advance to that game mode
     if current_state == MENU:
         if (x > (centre_x - (texture_width // 2)) and x < (centre_x + (texture_width // 2))
             and y > (135 - (50//2)) and y < (135 + (50//2))):
@@ -186,6 +207,7 @@ def on_mouse_press(x, y, button, modifiers):
             and y > (50 - (50//2)) and y < (50 + (50//2))):
             current_state = TWO_PLAYER
 
+    # Connect 4 game modes
     else:
         # Convert the x, y screen coordinates to grid coordinates
         column = x // WIDTH
@@ -193,6 +215,7 @@ def on_mouse_press(x, y, button, modifiers):
 
         # Ensure the user clicks within the grid on an empty slot and there's no winner yet
         if row < ROW_COUNT and column < COLUMN_COUNT and not game_over and grid[row][column] == 0:
+            # Two player game mode
             if current_state == TWO_PLAYER:
                 # Drop piece in lowest available row in a given column
                 for r in range(row + 1):
@@ -212,10 +235,15 @@ def on_mouse_press(x, y, button, modifiers):
                 # If a winner is detected set game_over to True to disable any more clicks/moves
                 if winning_move(grid[r][column]):
                     game_over = True
+
+                if game_over:
+                    play_sound("zapsplat_multimedia_male_voice_processed_says_winner_001_21568.wav")
+
+            # Single player mode
             else:
                 # Drop piece in lowest available row in a given column
                 for r in range(row + 1):
-                    # Flip the grid location from 0 to 1 or 2 depending on which player's turn
+                    # Flip the grid location from 0 to 1 for human player
                     if grid[r][column] == 0 and turn % 2 == 1:
                         grid[r][column] = player
                         break
@@ -226,9 +254,11 @@ def on_mouse_press(x, y, button, modifiers):
                 # Increment the turn number by 1 after every click/move
                 turn += 1
 
+                # Check if human player has won
                 if winning_move(player):
                     game_over = True
 
+                # If not make a computer move after selecting a random column
                 if not game_over:
                     col = random.randint(0, COLUMN_COUNT - 1)
                     computer_move(col)
