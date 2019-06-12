@@ -7,7 +7,7 @@ then creates the chosen game until finally detecting and announcing a winner.
 
 Author:		Ohri. A
 
-Created:    11/06/2019
+Created:    12/06/2019
 ------------------------------------------------------------------------------------------------------------------------
 """
 
@@ -60,6 +60,12 @@ current_state = MENU
 
 
 def winning_move(piece: int):
+    """Check the whole board/grid to see if there is 4 in a row of a given piece to return if there's a winner or not
+
+    :param piece: the piece to check for, 1 (Red) or 2 (Yellow)
+    :return: boolean value for if a winner is detected or not
+    """
+
     # Check horizontal for four in a row
     for r in range(ROW_COUNT):
         for c in range(COLUMN_COUNT - 3):
@@ -90,6 +96,12 @@ def winning_move(piece: int):
 
 
 def computer_move(col):
+    """Make a computer move that drops a piece in a random column, altering the grid
+
+    :param col: the randomly selected column number
+    :return: none
+    """
+
     global grid, turn
 
     # Drop computer/AI piece to lowest available slot given a random column
@@ -106,6 +118,11 @@ def computer_move(col):
 
 
 def draw_menu():
+    """Draw the menu screen including a logo, clickable buttons for game mode selection, and animated pieces
+
+    :return: none
+    """
+
     # Draw texture/Connect 4 logo
     arcade.draw_texture_rectangle(centre_x, SCREEN_HEIGHT - 75, texture_width, texture_height, texture, 0)
 
@@ -123,6 +140,11 @@ def draw_menu():
 
 
 def draw_board():
+    """Draw the Connect 4 board, as well as the slots that are filled according to the mouse click
+
+    :return: none
+    """
+
     for row in range(ROW_COUNT):
         for column in range(COLUMN_COUNT):
             # Determine the colour of the circular slot
@@ -143,6 +165,15 @@ def draw_board():
 
 
 def draw_text(turn_prompt_1, turn_prompt_2, winner_message_1, winner_message_2):
+    """Output/draw the text message to give the user, determined by the situation of the game
+
+    :param turn_prompt_1: the first text message to prompt player 1 to move
+    :param turn_prompt_2: the second text message to prompt player 2 to move
+    :param winner_message_1: The winning message to provide player 1 if he/she wins
+    :param winner_message_2: The winning message to provide player 2 if he/she wins
+    :return: none
+    """
+
     # Output the user prompt to move determined by the turn number
     if not game_over and turn % 2 == 1:
         arcade.draw_text(turn_prompt_1, centre_x - 150, SCREEN_HEIGHT -
@@ -159,15 +190,27 @@ def draw_text(turn_prompt_1, turn_prompt_2, winner_message_1, winner_message_2):
                          TEXT_HEIGHT + 10, arcade.color.WHITE, 24, width=300, align="center")
 
 
-def play_sound(file_path: str):
+def play_sound(file_name: str):
+    """Load and play a sound effect
+
+    :param file_name: the name of the sound file saved in the same path as the python file or file path if not
+    :return: none
+    """
+
     # Load and play sound effect
     try:
-        sound_effect = arcade.load_sound(file_path)
+        sound_effect = arcade.load_sound(file_name)
         arcade.play_sound(sound_effect)
     except:
         print("Unable to play sound.")
 
 def on_update(delta_time):
+    """Animate the pieces on the menu screen
+
+    :param delta_time: arcade parameter
+    :return: none
+    """
+
     global y_start
     # Animate pieces on menu screen
     y_start -= 1
@@ -177,6 +220,11 @@ def on_update(delta_time):
 
 
 def on_draw():
+    """Draw everything
+
+    :return: none
+    """
+
     # Draw everything in all 3 states of the game
     arcade.start_render()
 
@@ -194,6 +242,15 @@ def on_draw():
 
 
 def on_mouse_press(x, y, button, modifiers):
+    """Take user mouse clicks and determine what to do with them in different states of the game
+
+    :param x: the x location value of a click
+    :param y: the y location value of a click
+    :param button: arcade parameter
+    :param modifiers: arcade parameter
+    :return: none
+    """
+
     global turn, game_over, current_state
 
     # Determine which button is pressed in the menu to advance to that game mode
@@ -266,6 +323,11 @@ def on_mouse_press(x, y, button, modifiers):
 
 
 def setup():
+    """Setup the arcade game screen/window
+
+    :return: none
+    """
+
     arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     arcade.set_background_color(arcade.color.BLACK)
     arcade.schedule(on_update, 1/60)
